@@ -12,8 +12,9 @@ async function readSetting(): Promise<string> {
 }
 
 // 設定ファイルを書き込む処理を記述する
-function writeSetting(textData: string): void {
-  // TODO: 設定ファイルを書き込む処理
+async function writeSetting(textData: string): Promise<void> {
+  await vscode.env.clipboard.writeText(textData);
+  await vscode.window.showInformationMessage("Copied to clipboard");
 }
 
 export { readSetting, writeSetting };
