@@ -14,8 +14,16 @@
   "contributes": {
     "commands": [
       {
-        "command": "settings-beautify.helloWorld",
-        "title": "Hello World"
+        "command": "settings-beautify.beautify.userspace",
+        "title": "Beautify settings.json (userspace)"
+      },
+      {
+        "command": "settings-beautify.beautify.workspace",
+        "title": "Beautify settings.json (workspace)"
+      },
+      {
+        "command": "settings-beautify.beautify.all",
+        "title": "Beautify all settings.json"
       }
     ]
   },
