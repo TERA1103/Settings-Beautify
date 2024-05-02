@@ -1,13 +1,17 @@
+import * as vscode from 'vscode';
 
 // 設定ファイルを読み込む処理を記述する
-// ユーザースペースの設定ファイルと，ワークスペースの設定ファイルで分岐する必要あり．
-function readSetting(): string {
-  // TODO: 設定ファイルを読み込む処理
-  return "";
+// クリップボードベースで入出力する．
+async function readSetting(): Promise<string> {
+  const input = await vscode.window.showInputBox({ placeHolder: "Please paste your setting.json", title: "Beautify your setting.json", ignoreFocusOut: true });
+  if (!input) {
+    throw new Error("No input");
+  }
+  console.log(input);
+  return input;
 }
 
 // 設定ファイルを書き込む処理を記述する
-// ユーザースペースの設定ファイルと，ワークスペースの設定ファイルで分岐する必要あり．
 function writeSetting(textData: string): void {
   // TODO: 設定ファイルを書き込む処理
 }
