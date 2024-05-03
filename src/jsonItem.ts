@@ -8,9 +8,8 @@ class JsonItem {
   }
 
   // keyをパースして読み取るメソッド
-  public parseToKey(textData: string): string[] {
-    // private parseToKey(textData: string): string[] {
-    // TODO: パース処理
+  private parseToKey(textData: string): string[] {
+    // パース処理
     let textDataline = textData.split("\n");
     const c = textDataline.length;
     
@@ -22,11 +21,11 @@ class JsonItem {
         continue;
       }
       if (line.match(re)) {
-        let key_str = line.match(re);
-        if (key_str) {
-          const key_str2 = key_str[0].slice(1, key_str[0].length - 2);
-          const key_str_split = key_str2.split(".");
-          return key_str_split;
+        let keyStr = line.match(re);
+        if (keyStr) {
+          const keyStr2 = keyStr[0].slice(1, keyStr[0].length - 2);
+          const keyStrSplit = keyStr2.split(".");
+          return keyStrSplit;
         }
       }
     }
@@ -49,14 +48,14 @@ class JsonItem {
 // itemsをソートする関数
 // キーの辞書順でソートする
 function sortJsonItems(items: JsonItem[]): JsonItem[] {
-  // TODO: itemsをソートする処理
+  // itemsをソートする処理
   return items.sort((a, b) => (a.getKey() > b.getKey() ? 1 : -1));
 }
 
 // 第一キーが同じものをグループ化する関数
 // グループ化したものを返す
 function makeItemGroup(items: JsonItem[]): JsonItem[][] {
-  // TODO: itemsをグループ化する処理
+  // itemsをグループ化する処理
   let c = 0;
   let keyname = items[0];
   const groups = [];
