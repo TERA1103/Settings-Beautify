@@ -11,12 +11,12 @@ export function activate(context: vscode.ExtensionContext) {
   // This line of code will only be executed once when your extension is activated
   console.log('Congratulations, your extension "settings-beautify" is now active!');
 
-  for (let command of commands) {
+  for (const command of commands) {
     // The command has been defined in the package.json file
     // Now provide the implementation of the command with registerCommand
     // The commandId parameter must match the command field in package.json
     beautifier.setCommand(command);
-    let disposable = vscode.commands.registerCommand(command, beautifier.getFunc());
+    const disposable = vscode.commands.registerCommand(command, beautifier.getFunc());
     context.subscriptions.push(disposable);
   }
 }
