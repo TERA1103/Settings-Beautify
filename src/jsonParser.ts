@@ -1,4 +1,4 @@
-import JsonItem from "./jsonItem";
+import JsonItem from './jsonItem';
 
 // settings.json用のParser
 class settingParser {
