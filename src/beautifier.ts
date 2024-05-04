@@ -4,25 +4,15 @@ import { makeItemGroup, sortJsonItems } from './jsonItem';
 import settingParser from './jsonParser';
 import { readSetting, writeSetting } from './settingsJson';
 
-class Beautifier {
+class CommandManager {
   command: string;
   constructor(command: string) {
     this.command = command;
   }
 
-  public async beautify() {
-    const settingText = await readSetting();
-    const parser = new settingParser(settingText);
-    const items = parser.parse();
-    const sortedItems = sortJsonItems(items);
-    const groupedItems = makeItemGroup(sortedItems);
-    const beautifiedText = groupedItems.map((group) => group.map((item) => item.getTextData()).join('\n')).join('\n');
-    await writeSetting(beautifiedText);
-  }
-
   async beautifyUserspace() {
     // TODO: ユーザースペースの設定を整形する処理を書く
-    await this.beautify();
+    await beautify();
     vscode.window.showInformationMessage(`Hello World from Userspace!`);
   }
 
@@ -57,5 +47,16 @@ class Beautifier {
   }
 }
 
-const beautifier = new Beautifier(commands[0]);
+async function beautify() {
+  const settingText = await readSetting();
+  const parser = new settingParser(settingText);
+  const items = parser.parse();
+  const sortedItems = sortJsonItems(items);
+  const groupedItems = makeItemGroup(sortedItems);
+  const beautifiedText = groupedItems.map((group) => group.map((item) => item.getTextData()).join('\n')).join('\n');
+  await writeSetting(beautifiedText);
+}
+
+const beautifier = new CommandManager(commands[0]);
 export default beautifier;
+export { beautify };
