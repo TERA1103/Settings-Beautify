@@ -10,18 +10,18 @@ class JsonItem {
   // keyをパースして読み取るメソッド
   private parseToKey(textData: string): string[] {
     // パース処理
-    let textDataline = textData.split('\n');
+    const textDataline = textData.split('\n');
     const c = textDataline.length;
 
     for (let i = 0; i < c; i++) {
-      let line = textDataline[i];
+      const line = textDataline[i];
       const re = /".*":/gi;
       const re2 = /\/\//gi;
       if (line.match(re2)) {
         continue;
       }
       if (line.match(re)) {
-        let keyStr = line.match(re);
+        const keyStr = line.match(re);
         if (keyStr) {
           const keyStr2 = keyStr[0].slice(1, keyStr[0].length - 2);
           const keyStrSplit = keyStr2.split('.');
