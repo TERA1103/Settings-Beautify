@@ -71,4 +71,4 @@ function makeItemGroup(items: JsonItem[]): JsonItem[][] {
 }
 
 export default JsonItem;
-export { sortJsonItems, makeItemGroup };
+export { makeItemGroup, sortJsonItems };

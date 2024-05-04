@@ -1,5 +1,5 @@
-import commands from './commands';
 import * as vscode from 'vscode';
+import commands from './commands';
 
 class Beautifier {
   command: string;
