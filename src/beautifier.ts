@@ -1,5 +1,8 @@
 import * as vscode from 'vscode';
 import commands from './commands';
+import { makeItemGroup, sortJsonItems } from './jsonItem';
+import settingParser from './jsonParser';
+import { readSetting, writeSetting } from './settingsJson';
 
 class Beautifier {
   command: string;
@@ -7,12 +10,19 @@ class Beautifier {
     this.command = command;
   }
 
-  private beautify() {
-    // TODO: 整形処理の実装を書く
+  public async beautify() {
+    const settingText = await readSetting();
+    const parser = new settingParser(settingText);
+    const items = parser.parse();
+    const sortedItems = sortJsonItems(items);
+    const groupedItems = makeItemGroup(sortedItems);
+    const beautifiedText = groupedItems.map((group) => group.map((item) => item.getTextData()).join('\n')).join('\n');
+    await writeSetting(beautifiedText);
   }
 
-  beautifyUserspace() {
+  async beautifyUserspace() {
     // TODO: ユーザースペースの設定を整形する処理を書く
+    await this.beautify();
     vscode.window.showInformationMessage(`Hello World from Userspace!`);
   }
 
