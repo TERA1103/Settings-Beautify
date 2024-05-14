@@ -1,18 +1,16 @@
 import * as vscode from 'vscode';
 import commands from './commands';
+import { makeViewPanel } from './settingsJson';
 
-class Beautifier {
+class CommandManager {
   command: string;
   constructor(command: string) {
     this.command = command;
   }
 
-  private beautify() {
-    // TODO: 整形処理の実装を書く
-  }
-
-  beautifyUserspace() {
+  async beautifyUserspace() {
     // TODO: ユーザースペースの設定を整形する処理を書く
+    beautify();
     vscode.window.showInformationMessage(`Hello World from Userspace!`);
   }
 
@@ -47,5 +45,10 @@ class Beautifier {
   }
 }
 
-const beautifier = new Beautifier(commands[0]);
+function beautify() {
+  makeViewPanel();
+}
+
+const beautifier = new CommandManager(commands[0]);
 export default beautifier;
+export { beautify };
