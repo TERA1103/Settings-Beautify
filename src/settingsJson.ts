@@ -5,7 +5,7 @@ import { extentionContext } from './extension';
 
 // 設定ファイルを読み込む処理を記述する
 // クリップボードベースで入出力する．
-function readSetting() {
+function makeViewPanel() {
   // メインのVSCodeエクステンション
   const panel = vscode.window.createWebviewPanel('webViewPanel', 'Web View Panel', vscode.ViewColumn.One, {
     enableScripts: true,
@@ -67,4 +67,4 @@ async function writeSetting(textData: string): Promise<void> {
   await vscode.window.showInformationMessage('Copied to clipboard');
 }
 
-export { readSetting, writeSetting };
+export { makeViewPanel };

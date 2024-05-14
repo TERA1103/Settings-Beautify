@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import commands from './commands';
-import { readSetting } from './settingsJson';
+import { makeViewPanel } from './settingsJson';
 
 class CommandManager {
   command: string;
@@ -46,7 +46,7 @@ class CommandManager {
 }
 
 function beautify() {
-  readSetting();
+  makeViewPanel();
 }
 
 const beautifier = new CommandManager(commands[0]);
