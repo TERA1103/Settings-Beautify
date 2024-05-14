@@ -4,6 +4,9 @@ import * as vscode from 'vscode';
 import beautifier from './beautifier';
 import commands from './commands';
 
+// context variable
+let extentionContext: vscode.ExtensionContext;
+
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -18,8 +21,11 @@ export function activate(context: vscode.ExtensionContext) {
     beautifier.setCommand(command);
     const disposable = vscode.commands.registerCommand(command, beautifier.getFunc());
     context.subscriptions.push(disposable);
+    extentionContext = context;
   }
 }
 
 // This method is called when your extension is deactivated
 export function deactivate() {}
+
+export { extentionContext };
