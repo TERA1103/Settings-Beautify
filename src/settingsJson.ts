@@ -6,7 +6,7 @@ import { extentionContext } from './extension';
 // 設定ファイルを読み込む処理を記述する
 // クリップボードベースで入出力する．
 function makeViewPanel() {
-  // メインのVSCodeエクステンション
+  // webviewのパネル作成
   const panel = vscode.window.createWebviewPanel('webViewPanel', 'Web View Panel', vscode.ViewColumn.One, {
     enableScripts: true,
   });
