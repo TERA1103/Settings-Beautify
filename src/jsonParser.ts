@@ -1,109 +1,208 @@
-import JsonItem from './jsonItem';
+import { JsonComment, JsonItem } from './newJsonItem';
 
 // settings.json用のParser
-class settingParser {
-  settingText: string;
-  currentPos: number = 0;
-  currentLevel: number = 0;
-  items: JsonItem[] = [];
+class jsonParser {
+  private comments: JsonComment[] = [];
+  private jsonString: string = '';
+  private jsonStringWithoutComment: string = '';
+  private json: JsonItem[] = [];
 
-  constructor(settingText: string) {
-    this.settingText = settingText;
+  constructor(jsonString: string) {
+    this.jsonString = jsonString;
+    this.comments = this.parseComment(jsonString);
+    this.jsonStringWithoutComment = this.trimComments();
+    this.json = this.parseJson();
   }
 
-  public parse(): JsonItem[] {
-    // 一番始めのキーに到達したかどうか
-    let beganflag: boolean = false;
-    while (this.currentPos < this.settingText.length) {
-      // 一番浅いキーバリューペアでアイテム分けする
-      // 最初の{}に入る前: currentLevel = 0
-      // 一番浅い{}内: currentLevel = 1
-      // それ以降: currentLevel =< 2
-      if (this.settingText[this.currentPos] === '{') {
-        this.currentLevel++;
-      } else if (this.settingText[this.currentPos] === '}') {
-        this.currentLevel--;
-      }
-      // 最初のキーに到達するまでは，空白と改行を読み飛ばす
-      // 二行目以降は行頭から読み始めるようにするため
-      if (this.settingText[this.currentPos] !== ' ' && this.settingText[this.currentPos] !== '\n') {
-        beganflag = true;
-      }
+  private parseComment(json: string): JsonComment[] {
+    const lines = json.split('\n');
+    let inItem = false;
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      let comment: JsonComment = { inItemPosition: 0, globalPosition: i, inRowPosition: 0, comment: '' };
+      for (let j = 0; j < line.length - 1; j++) {
+        const substr = line.slice(j, j + 2);
 
-      // 最初のキーに到達するとこの処理に入る
-      if (this.currentLevel !== 0 && beganflag) {
-        this.currentPos++;
-        this.parseInternal();
-        return this.items;
-      }
+        if (!inItem && substr === '/*') {
+          inItem = true;
+          comment.inRowPosition = j;
+          comment.comment += substr;
+          j += 1;
+          continue;
+        } else if (inItem && substr === '*/') {
+          inItem = false;
+          comment.comment += substr;
+          this.comments.push(comment);
+          comment = { inItemPosition: 0, globalPosition: i, inRowPosition: 0, comment: '' };
+          j += 1;
+          continue;
+        } else if (!inItem && substr === '//') {
+          comment.inRowPosition = j;
+          comment.comment += line.slice(j);
+          this.comments.push(comment);
+          break;
+        }
 
-      this.currentPos++;
+        if (inItem) {
+          comment.comment += line[j];
+          if (j === line.length - 2) {
+            comment.comment += line[j + 1];
+          }
+        }
+      }
+      if (inItem) {
+        this.comments.push(comment);
+      }
     }
-    throw new Error('Invalid setting.json');
+    return this.comments;
   }
 
-  // パース用の内部関数
-  // これが終了した時パースも終了している
-  private parseInternal() {
-    // 同じItemに含まれる文字列を足していく
-    let substr: string = '';
-    // カンマを見たかどうか
-    // カンマを見ると，その次にスペースでも'"'でもない文字が来れば，その行には次のキーは現れない
-    let sawComma: boolean = false;
-    while (this.currentPos < this.settingText.length) {
-      if (this.settingText[this.currentPos] === '{' || this.settingText[this.currentPos] === '[') {
-        this.currentLevel++;
-      } else if (this.settingText[this.currentPos] === '}' || this.settingText[this.currentPos] === ']') {
-        this.currentLevel--;
-      }
-      // 一番外側の'}'を抜けたら終了
-      if (this.currentLevel === 0) {
-        return;
+  private parseJson(): JsonItem[] {
+    const jsonStr = this.jsonStringWithoutComment;
+    const lines = jsonStr.split('\n');
+
+    const comments = this.getComments();
+    const commentsIter = comments[Symbol.iterator]();
+    let comment = commentsIter.next();
+
+    let inJson = false;
+    let completed = false;
+    let inJsonSpreaded = false;
+    let jsonItem = new JsonItem();
+    let keyFlag = false;
+    let keyEndFlag = false;
+    let valueFlag = false;
+    let braceLevel = 0;
+    let bracketLevel = 0;
+    let itemRowCount = 0;
+    let finished = false;
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      for (let j = 0; j < line.length; j++) {
+        const char = line[j];
+        if (!inJson && char === '{') {
+          inJson = true;
+          break;
+        }
+        if (inJson) {
+          if (char === ' ') {
+            continue;
+          }
+          if (!keyFlag) {
+            if (char === '"') {
+              keyFlag = true;
+              continue;
+            }
+          }
+          if (!keyEndFlag && !valueFlag) {
+            if (char === '"') {
+              keyEndFlag = true;
+              continue;
+            }
+            jsonItem.key += char;
+            continue;
+          }
+          if (!valueFlag) {
+            if (char === ':') {
+              valueFlag = true;
+              continue;
+            }
+          }
+          if (valueFlag) {
+            if (char === '{') {
+              braceLevel++;
+            }
+            if (char === '}') {
+              braceLevel--;
+              if (braceLevel === -1) {
+                completed = true;
+                break;
+              }
+            }
+            if (char === '[') {
+              bracketLevel++;
+            }
+            if (char === ']') {
+              bracketLevel--;
+            }
+            if (char === ',' && braceLevel === 0 && bracketLevel === 0) {
+              finished = true;
+              break;
+            }
+            jsonItem.value += char;
+          }
+        }
       }
 
-      substr += this.settingText[this.currentPos];
-      this.currentPos++;
-
-      // 深い場所でのカンマは無視する（キーの判定に入れない）
-      if (this.currentLevel >= 2) {
+      if (!inJsonSpreaded) {
+        if (inJson) {
+          inJsonSpreaded = true;
+          continue;
+        }
         continue;
       }
-      // カンマを見たら，その行に次のキーが現れるかどうかを判定してJsonItemを生成する処理を変える
-      if (sawComma) {
-        // 'value,      "key":'のような場合に対応
-        while (this.settingText[this.currentPos] === ' ') {
-          substr += this.settingText[this.currentPos];
-          this.currentPos++;
-        }
-        if (this.settingText[this.currentPos] === '"') {
-          // JsonItemを生成し，substrやsawCommaを初期化
-          const item = new JsonItem(substr);
-          this.items.push(item);
-          substr = '';
-          sawComma = false;
-          continue;
-        } else {
-          // こっちは，次の行以降にキーが現れる場合
-          while (this.settingText[this.currentPos] !== '\n') {
-            substr += this.settingText[this.currentPos];
-            this.currentPos++;
-          }
-          substr += this.settingText[this.currentPos];
-          this.currentPos++;
-          // JsonItemを生成し，substrやsawCommaを初期化
-          const item = new JsonItem(substr);
-          this.items.push(item);
-          substr = '';
-          sawComma = false;
-          continue;
-        }
+
+      if (completed) {
+        this.json.push(jsonItem);
+        break;
       }
 
-      if (this.settingText[this.currentPos] === ',') {
-        sawComma = true;
+      jsonItem.raw += line + '\n';
+      itemRowCount++;
+      while (!comment.done && i === comment.value.globalPosition) {
+        comment.value.inItemPosition = itemRowCount - 1;
+        jsonItem.comments.push(comment.value);
+        comment = commentsIter.next();
+      }
+
+      if (finished) {
+        this.json.push(jsonItem);
+        jsonItem = new JsonItem();
+        keyFlag = false;
+        keyEndFlag = false;
+        valueFlag = false;
+        itemRowCount = 0;
+        finished = false;
       }
     }
+    return this.json;
+  }
+
+  private trimComments(): string {
+    const comments = this.getComments();
+    const commentsIter = comments[Symbol.iterator]();
+    let comment = commentsIter.next();
+    let result = '';
+
+    const lines = this.jsonString.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      if (comment.done) {
+        result += lines[i] + '\n';
+        continue;
+      }
+      if (i !== comment.value.globalPosition) {
+        result += lines[i] + '\n';
+        continue;
+      }
+
+      let line = lines[i];
+      while (!comment.done && i === comment.value.globalPosition) {
+        line = line.replace(comment.value.comment, '');
+        comment = commentsIter.next();
+      }
+      result += line + '\n';
+    }
+
+    return result;
+  }
+
+  public getComments(): JsonComment[] {
+    return this.comments;
+  }
+
+  public getJson(): JsonItem[] {
+    return this.json;
   }
 }
 
-export default settingParser;
+export default jsonParser;

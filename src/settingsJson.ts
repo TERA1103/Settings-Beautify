@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
-import settingParser from './jsonParser';
-import { sortJsonItems, makeItemGroup } from './jsonItem';
 import { extentionContext } from './extension';
+import jsonParser from './jsonParser';
 
 // 設定ファイルを読み込む処理を記述する
 // クリップボードベースで入出力する．
@@ -23,12 +22,12 @@ function makeViewPanel() {
     <body>
       <textarea id="settingsJson" rows="30" cols="100"></textarea><br />
       <button onclick="send()">Send Settings JSON</button>
-  
+
       <script>
         function send() {
           const vscode = acquireVsCodeApi();
           const textarea = document.getElementById('settingsJson');
-  
+
           vscode.postMessage({
               type: 'settings',
               content: textarea.value
@@ -36,7 +35,7 @@ function makeViewPanel() {
         }
       </script>
     </body>
-  </html>  
+  </html>
   `;
 
   // メッセージの受信処理
@@ -45,14 +44,15 @@ function makeViewPanel() {
       switch (message.type) {
         case 'settings': {
           const settingText = message.content;
-          const parser = new settingParser(settingText);
-          const items = parser.parse();
-          const sortedItems = sortJsonItems(items);
-          const groupedItems = makeItemGroup(sortedItems);
-          const beautifiedText = groupedItems
-            .map((group) => group.map((item) => item.getTextData()).join('\n'))
-            .join('\n');
-          await writeSetting(beautifiedText);
+          const parser = new jsonParser(settingText);
+          const items = parser.getJson();
+          console.dir(items, { depth: null });
+          // const sortedItems = sortJsonItems(items);
+          // const groupedItems = makeItemGroup(sortedItems);
+          // const beautifiedText = groupedItems
+          //   .map((group) => group.map((item) => item.getTextData()).join('\n'))
+          //   .join('\n');
+          // await writeSetting();
         }
       }
     },
@@ -61,10 +61,10 @@ function makeViewPanel() {
   );
 }
 
-// 設定ファイルを書き込む処理を記述する
-async function writeSetting(textData: string): Promise<void> {
-  await vscode.env.clipboard.writeText(textData);
-  await vscode.window.showInformationMessage('Copied to clipboard');
-}
+// // 設定ファイルを書き込む処理を記述する
+// async function writeSetting(textData: string): Promise<void> {
+//   await vscode.env.clipboard.writeText(textData);
+//   await vscode.window.showInformationMessage('Copied to clipboard');
+// }
 
 export { makeViewPanel };
