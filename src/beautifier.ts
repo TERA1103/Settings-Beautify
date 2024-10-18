@@ -1,6 +1,6 @@
 import { sortJsonc } from 'sort-jsonc';
 import commands from './commands';
-import { readTextEditor } from './settingsJson';
+import { readTextEditor, writeSetting } from './settingsJson';
 
 const getFunc = (command: string) => {
   switch (command) {
@@ -17,7 +17,7 @@ const beautify = () => {
     return;
   }
   const target = sortJsonc(source);
-  console.log(target);
+  writeSetting(target);
 };
 
 export { beautify, getFunc };
