@@ -1,7 +1,4 @@
 import * as vscode from 'vscode';
-// import { extentionContext } from './extension';
-// import jsonParser from './jsonParser';
-
 // settings.jsonの読み込み
 // vscode.window.activeTextEditorで読み込む
 function readTextEditor() {
