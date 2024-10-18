@@ -14,16 +14,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "settings-beautify.beautify.userspace",
-        "title": "Beautify settings.json (userspace)"
-      },
-      {
-        "command": "settings-beautify.beautify.workspace",
-        "title": "Beautify settings.json (workspace)"
-      },
-      {
-        "command": "settings-beautify.beautify.all",
-        "title": "Beautify all settings.json"
+        "command": "settings-beautify.beautify",
+        "title": "Beautify settings.json"
       }
     ]
   },
@@ -53,5 +45,8 @@
     "typescript": "^5.4.5",
     "webpack": "^5.91.0",
     "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "sort-jsonc": "^1.0.2"
   }
 }
