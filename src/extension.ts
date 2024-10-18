@@ -1,7 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import beautifier from './beautifier';
+import { getFunc } from './beautifier';
 import commands from './commands';
 
 // context variable
@@ -18,8 +18,7 @@ export function activate(context: vscode.ExtensionContext) {
     // The command has been defined in the package.json file
     // Now provide the implementation of the command with registerCommand
     // The commandId parameter must match the command field in package.json
-    beautifier.setCommand(command);
-    const disposable = vscode.commands.registerCommand(command, beautifier.getFunc());
+    const disposable = vscode.commands.registerCommand(command, getFunc(command));
     context.subscriptions.push(disposable);
     extentionContext = context;
   }
